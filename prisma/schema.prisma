@@ -73,8 +73,8 @@ model Event {
     tags                String?
 
     //Relationship with the creator
-    event_creator Int
-    creator       User        @relation("EventCreator", fields: [event_creator], references: [id])
+    event_creator_id    Int
+    event_creator       User        @relation("EventCreator", fields: [event_creator_id], references: [id])
 
     //Event tiers
     event_tiers EventTier[]
@@ -89,8 +89,8 @@ model DefaultTier {
     benefits        String
 
     //Relationship with the creator
-    tier_creator    Int
-    creator         User            @relation("TierCreator", fields: [tier_creator], references: [id])
+    event_creator_id    Int
+    event_creator       User            @relation("TierCreator", fields: [event_creator_id], references: [id])
 
     @@map("default_tiers")
 }
@@ -102,8 +102,8 @@ model EventTier {
     benefits        String
 
     //Relationship with the tier creator
-    tier_creator    Int
-    creator         User            @relation("EventTierCreator", fields: [tier_creator], references: [id])
+    tier_creator_id Int
+    tier_creator    User            @relation("EventTierCreator", fields: [tier_creator_id], references: [id])
 
     //Relationship with the event
     event_id        Int
@@ -128,12 +128,12 @@ model Proposal {
     event_tier      EventTier? @relation("ProposalEventTier", fields: [event_tier_id], references: [id])
 
     //Sponsor who sends the proposal
-    user_sponsor    Int
-    sponsor         User @relation("ProposalSponsor", fields: [user_sponsor], references: [id])
+    sponsor_id      Int
+    sponsor         User @relation("ProposalSponsor", fields: [sponsor_id], references: [id])
 
     //Creator who receives the proposal
-    user_event_creator Int
-    event_creator      User @relation("ProposalCreator", fields: [user_event_creator], references: [id])
+    event_creator_id Int
+    event_creator    User @relation("ProposalCreator", fields: [event_creator_id], references: [id])
 
     @@map("proposals")
 }
@@ -142,17 +142,17 @@ model Conversation {
   id            Int     @id @default(autoincrement())
 
   //Participants
-  user_creator  Int
-  creator       User    @relation("ConversationCreator", fields: [user_creator], references: [id])
+  event_creator_id  Int
+  event_creator     User    @relation("ConversationCreator", fields: [event_creator_id], references: [id])
 
-  user_sponsor  Int
-  sponsor       User    @relation("ConversationSponsor", fields: [user_sponsor], references: [id])
+  event_sponsor_id  Int
+  event_sponsor     User    @relation("ConversationSponsor", fields: [event_sponsor_id], references: [id])
 
   //Conversation messages
   messages      Message[]
 
   //A single thread per creator/sponsor pair
-  @@unique([user_creator, user_sponsor])
+  @@unique([event_creator_id, event_sponsor_id])
   @@map("conversations")
 }
 
