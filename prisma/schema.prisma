@@ -2,10 +2,173 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/core/prisma/generated"
+    provider = "prisma-client"
+    output   = "../src/core/prisma/generated"
 }
 
 datasource db {
-  provider = "mysql"
+    provider = "mysql"
+}
+
+
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum UserType {
+    creator
+    sponsor
+}
+
+enum ProposalStatus {
+    NEGOTIATING
+    COUNTER_OFFERED
+    ACCEPTED
+    DECLINED
+}
+
+// ─────────────────────────────────────────────
+// MODELS
+// ─────────────────────────────────────────────
+
+model User {
+    id        Int      @id @default(autoincrement())
+    username  String   @unique
+    name      String
+    surname   String
+    email     String   @unique
+    password  String
+    user_type UserType
+    enabled   Boolean  @default(true)
+
+    //Relationships as a creator
+    events            Event[]        @relation("EventCreator")
+    default_tiers     DefaultTier[]  @relation("TierCreator")
+    event_tiers       EventTier[]    @relation("EventTierCreator")
+
+    //Relationships in proposals
+    proposals_as_sponsor  Proposal[] @relation("ProposalSponsor")
+    proposals_as_creator  Proposal[] @relation("ProposalCreator")
+
+    //Relationships in conversations
+    conversations_as_creator  Conversation[] @relation("ConversationCreator")
+    conversations_as_sponsor  Conversation[] @relation("ConversationSponsor")
+
+    //Sent messages
+    messages Message[] @relation("MessageSender")
+
+    @@map("users")
+}
+
+model Event {
+    id                  Int       @id @default(autoincrement())
+    title               String
+    description         String    @db.Text
+    cover_image         String?
+    date                DateTime
+    location            String
+    industry_field      String
+    expected_attendance Int
+    tags                String?
+
+    //Relationship with the creator
+    event_creator_id    Int
+    event_creator       User        @relation("EventCreator", fields: [event_creator_id], references: [id])
+
+    //Event tiers
+    event_tiers EventTier[]
+
+    @@map("events")
+}
+
+model DefaultTier {
+    id              Int             @id @default(autoincrement())
+    name            String
+    price           Decimal         @db.Decimal(10, 2)
+    benefits        String
+
+    //Relationship with the creator
+    event_creator_id    Int
+    event_creator       User            @relation("TierCreator", fields: [event_creator_id], references: [id])
+
+    @@map("default_tiers")
+}
+
+model EventTier {
+    id              Int             @id @default(autoincrement())
+    name            String
+    price           Decimal         @db.Decimal(10, 2)
+    benefits        String
+
+    //Relationship with the tier creator
+    tier_creator_id Int
+    tier_creator    User            @relation("EventTierCreator", fields: [tier_creator_id], references: [id])
+
+    //Relationship with the event
+    event_id        Int
+    event           Event           @relation(fields: [event_id], references: [id])
+
+    //Proposals that reference this tier
+    proposals       Proposal[]      @relation("ProposalEventTier")
+
+    @@map("event_tiers")
+}
+
+model Proposal {
+    id              Int            @id @default(autoincrement())
+    tier_name       String
+    tier_price      Decimal        @db.Decimal(10, 2)
+    tier_benefits   String
+    is_event_tier   Boolean
+    status          ProposalStatus @default(NEGOTIATING)
+
+    //Source event tier (nullable, only if is_event_tier = true)
+    event_tier_id   Int?
+    event_tier      EventTier? @relation("ProposalEventTier", fields: [event_tier_id], references: [id])
+
+    //Sponsor who sends the proposal
+    sponsor_id      Int
+    sponsor         User @relation("ProposalSponsor", fields: [sponsor_id], references: [id])
+
+    //Creator who receives the proposal
+    event_creator_id Int
+    event_creator    User @relation("ProposalCreator", fields: [event_creator_id], references: [id])
+
+    @@map("proposals")
+}
+
+model Conversation {
+  id            Int     @id @default(autoincrement())
+
+  //Participants
+  event_creator_id  Int
+  event_creator     User    @relation("ConversationCreator", fields: [event_creator_id], references: [id])
+
+  event_sponsor_id  Int
+  event_sponsor     User    @relation("ConversationSponsor", fields: [event_sponsor_id], references: [id])
+
+  //Conversation messages
+  messages      Message[]
+
+  //A single thread per creator/sponsor pair
+  @@unique([event_creator_id, event_sponsor_id])
+  @@map("conversations")
+}
+
+model Message {
+    id              Int       @id @default(autoincrement())
+    message         String    @db.Text
+    last_read       DateTime?
+    created_at      DateTime  @default(now())
+
+    //Conversation it belongs to
+    conversation_id Int
+    conversation    Conversation @relation(fields: [conversation_id], references: [id])
+
+    //User who sent it
+    sender_id         Int
+    sender          User @relation("MessageSender", fields: [sender_id], references: [id])
+
+    @@map("messages")
 }
