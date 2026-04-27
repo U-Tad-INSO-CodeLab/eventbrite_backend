@@ -168,7 +168,7 @@ model Message {
 
     //User who sent it
     sender_id         Int
-    sender          User @relation("MessageSender", fields: [sent_by], references: [id])
+    sender          User @relation("MessageSender", fields: [sender_id], references: [id])
 
     @@map("messages")
 }
