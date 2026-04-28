@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import { errorHandler } from './middleware/errorHandler';
+import { errorHandler } from '@/core/middleware/errorHandler.js';
 
 export function createServer(): Application {
   const app = express();

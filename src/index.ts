@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { createServer } from './core/server';
-import { env } from './core/config/env';
+import { createServer } from '@/core/server.js';
+import { env } from '@/core/config/env.js';
 
 const app = createServer();
 
