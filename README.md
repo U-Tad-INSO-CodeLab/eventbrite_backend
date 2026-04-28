@@ -127,7 +127,3 @@ Configure production to use the same required environment values as in **`.env`*
    ```
 
 ---
-
-## Contributing
-
-Commit messages and pull request expectations for the whole EventLink effort are documented in **`../eventlink-docs/README.md`** (Git commit convention and pull request workflow).
