@@ -125,5 +125,3 @@ Configure production to use the same required environment values as in **`.env`*
    ```bash
    npm start
    ```
-
----
