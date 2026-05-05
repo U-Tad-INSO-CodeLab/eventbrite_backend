@@ -6,13 +6,8 @@ import status from "http-status";
 export const getProfile = async (_req: Request, res: Response) => {
   const contextUser = getContextUser();
 
-  if (!contextUser) {
-    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
-
   const user = await prisma.user.findUnique({
-    where: { id: contextUser.id },
+    where: { id: contextUser?.id },
     omit: { password: true },
   });
 
