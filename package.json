@@ -15,7 +15,8 @@
     "express": "^4.21.0",
     "express-http-context": "^2.0.1",
     "http-status": "^2.1.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "validate-express-req-body": "^1.5.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

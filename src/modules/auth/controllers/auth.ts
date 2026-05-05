@@ -13,18 +13,6 @@ export const register = async (req: Request, res: Response) => {
   const { username, password, confirmPassword, name, surname, email } =
     req.body;
 
-  if (
-    !username ||
-    !password ||
-    !confirmPassword ||
-    !name ||
-    !surname ||
-    !email
-  ) {
-    res.status(status.BAD_REQUEST).json({ message: "All fields are required" });
-    return;
-  }
-
   if (password !== confirmPassword) {
     res.status(status.BAD_REQUEST).json({ message: "Passwords do not match" });
     return;
@@ -59,13 +47,6 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
-
-  if (!username || !password) {
-    res
-      .status(status.BAD_REQUEST)
-      .json({ message: "Username and password are required" });
-    return;
-  }
 
   const user = await prisma.user.findUnique({ where: { username } });
 

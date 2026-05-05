@@ -3,13 +3,15 @@ import { register, login } from "@/modules/auth/controllers/auth";
 import { getProfile } from "@/modules/auth/controllers/profile";
 import { authMiddleware } from "@/modules/auth/middleware/auth";
 import { UserType } from "@/core/prisma/generated/enums";
+import { validateRegister } from "@/modules/auth/validators/register";
+import { validateLogin } from "@/modules/auth/validators/login";
 
 const authRouter = express.Router();
 
 for (const user_type of Object.values(UserType)) {
-  authRouter.post(`/register/${user_type}`, register);
+  authRouter.post(`/register/${user_type}`, validateRegister, register);
 }
-authRouter.post("/login", login);
+authRouter.post("/login", validateLogin, login);
 authRouter.get("/profile", authMiddleware, getProfile);
 
 export default authRouter;
