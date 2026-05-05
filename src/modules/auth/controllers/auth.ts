@@ -8,7 +8,12 @@ import status from "http-status";
 const SALT_ROUNDS = 10;
 
 export const register = async (req: Request, res: Response) => {
-  const user_type = req.baseUrl.split("/").pop() as UserType;
+  const user_type = req.params.user_type as UserType;
+
+  if (!Object.values(UserType).includes(user_type)) {
+    res.status(status.BAD_REQUEST).json({ message: "Invalid user type" });
+    return;
+  }
 
   const { username, password, confirmPassword, name, surname, email } =
     req.body;
