@@ -1,4 +1,8 @@
-<% const formatLabel = s => s.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') %>
+<% const formatLabel = s => {
+  const words = s.split('_')
+  if (words[words.length - 1] === 'id') words.pop()
+  return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+} %>
 
 <div class="mb-6">
   <a href="/admin/<%= modelKey %>"
@@ -49,6 +53,19 @@
           <input type="password" name="<%= field.name %>" autocomplete="new-password"
             placeholder="<%= row ? 'Leave blank to keep unchanged' : '' %>"
             class="<%= inputClass %>"/>
+
+        <% } else if (field.type === 'relation') { %>
+          <% const opts = (relationOptions && relationOptions[field.name]) || [] %>
+          <select name="<%= field.name %>" class="<%= inputClass %> bg-white">
+            <% if (field.optional) { %>
+              <option value="">— None —</option>
+            <% } %>
+            <% for (const opt of opts) { %>
+              <option value="<%= opt.id %>" <%= Number(v) === opt.id ? 'selected' : '' %>>
+                <%= opt.label %>
+              </option>
+            <% } %>
+          </select>
 
         <% } else { %>
           <input type="text" name="<%= field.name %>" value="<%= v %>" class="<%= inputClass %>"/>
