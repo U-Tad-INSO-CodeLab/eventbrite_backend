@@ -10,11 +10,18 @@
   "dependencies": {
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.6.1",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "express-http-context": "^2.0.1",
+    "http-status": "^2.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "validate-express-req-body": "^1.5.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^4.17.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.19.17",
     "prisma": "^7.8.0",
     "tsc-alias": "^1.8.16",
