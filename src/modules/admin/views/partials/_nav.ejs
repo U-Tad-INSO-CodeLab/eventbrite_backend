@@ -1,0 +1,14 @@
+<header class="bg-slate-900 text-white shadow-md">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center gap-6">
+    <a href="/admin" class="font-bold text-base tracking-tight shrink-0">⚙ Eventlink Admin</a>
+    <nav class="flex flex-wrap gap-x-5 gap-y-1 flex-1">
+      <% for (const [key, cfg] of Object.entries(models)) { %>
+        <a href="/admin/<%= key %>"
+          class="text-sm transition-colors <%= locals.modelKey === key ? 'text-white font-semibold' : 'text-slate-400 hover:text-white' %>">
+          <%= cfg.label %>
+        </a>
+      <% } %>
+    </nav>
+    <a href="/admin/logout" class="text-xs text-slate-400 hover:text-white shrink-0 transition-colors">Logout</a>
+  </div>
+</header>

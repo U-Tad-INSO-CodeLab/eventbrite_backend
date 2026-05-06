@@ -20,4 +20,5 @@ export const env = {
   DATABASE_URL: DATABASE_URL,
   JWT_SECRET: String(process.env.JWT_SECRET),
   JWT_EXPIRES_IN: Number(process.env.JWT_EXPIRES_IN ?? 7 * 24 * 60 * 60),
+  ADMIN_COOKIE_SECRET: String(process.env.ADMIN_COOKIE_SECRET ?? "change-me"),
 };

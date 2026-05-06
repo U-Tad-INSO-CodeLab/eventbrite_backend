@@ -1,0 +1,12 @@
+<h2 class="text-2xl font-bold text-slate-800 mb-2">Dashboard</h2>
+<p class="text-gray-500 mb-8">Select a model from the navigation to manage records.</p>
+
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+  <% for (const [key, cfg] of Object.entries(models)) { %>
+    <a href="/admin/<%= key %>"
+      class="bg-white rounded-xl shadow-sm border border-gray-200 px-5 py-4 hover:shadow-md hover:border-slate-300 transition-all group">
+      <p class="font-semibold text-slate-800 group-hover:text-slate-900"><%= cfg.label %></p>
+      <p class="text-xs text-gray-400 mt-1">Manage records →</p>
+    </a>
+  <% } %>
+</div>
