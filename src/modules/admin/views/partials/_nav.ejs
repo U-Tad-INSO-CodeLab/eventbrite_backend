@@ -1,14 +1,31 @@
-<header class="bg-slate-900 text-white shadow-md">
-  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center gap-6">
-    <a href="/admin" class="font-bold text-base tracking-tight shrink-0">⚙ Eventlink Admin</a>
-    <nav class="flex flex-wrap gap-x-5 gap-y-1 flex-1">
-      <% for (const [key, cfg] of Object.entries(models)) { %>
-        <a href="/admin/<%= key %>"
-          class="text-sm transition-colors <%= locals.modelKey === key ? 'text-white font-semibold' : 'text-slate-400 hover:text-white' %>">
-          <%= cfg.label %>
-        </a>
-      <% } %>
-    </nav>
-    <a href="/admin/logout" class="text-xs text-slate-400 hover:text-white shrink-0 transition-colors">Logout</a>
+<aside class="w-64 bg-slate-950 flex-shrink-0 flex flex-col overflow-y-auto">
+
+  <div class="px-5 py-5 border-b border-slate-800">
+    <a href="/admin" class="flex items-center gap-2 text-white font-bold text-base tracking-tight">
+      <span class="bg-indigo-600 rounded-md w-7 h-7 flex items-center justify-center text-xs">⚙</span>
+      Eventlink
+    </a>
+    <p class="text-slate-500 text-xs mt-1 ml-9">Admin Panel</p>
   </div>
-</header>
+
+  <nav class="flex-1 px-3 py-4 space-y-0.5">
+    <p class="text-slate-600 text-[10px] font-semibold uppercase tracking-widest px-3 pb-2">Models</p>
+    <% for (const [key, cfg] of Object.entries(locals.models || {})) { %>
+      <a href="/admin/<%= key %>"
+        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+          <%= locals.modelKey === key
+            ? 'bg-indigo-600 text-white'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800' %>">
+        <%= cfg.label %>
+      </a>
+    <% } %>
+  </nav>
+
+  <div class="px-3 py-4 border-t border-slate-800">
+    <a href="/admin/logout"
+      class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+      <span>↩</span> Logout
+    </a>
+  </div>
+
+</aside>

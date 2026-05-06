@@ -1,8 +1,16 @@
 <%- include('../partials/_head') %>
-<body class="bg-gray-100 min-h-screen">
-  <%- include('../partials/_nav') %>
+<body class="bg-slate-50 overflow-hidden">
 
-  <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6"><%- body %></main>
+  <div class="flex h-screen">
 
-  <%- include('../partials/_foot') %>
-</body>
+    <%- include('../partials/_nav') %>
+
+    <div class="flex-1 overflow-auto">
+      <main class="p-8 max-w-6xl mx-auto">
+        <%- body %>
+      </main>
+    </div>
+
+  </div>
+
+<%- include('../partials/_foot') %>
