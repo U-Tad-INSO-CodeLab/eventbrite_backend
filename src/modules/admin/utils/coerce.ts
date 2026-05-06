@@ -23,10 +23,21 @@ export async function coerceBody(
     }
 
     switch (field.type) {
-          case "number":
-          case "relation":
-              data[field.name] = raw ? Number(raw) : field.optional ? null : 0;
-              break;
+      case "number":
+      case "relation":
+        data[field.name] = raw ? Number(raw) : field.optional ? null : 0;
+        break;
+      case "enum": {
+        const val = raw ?? "";
+        const allowed = field.enumValues ?? [];
+        data[field.name] =
+          allowed.includes(val)
+            ? val
+            : field.optional && val === ""
+              ? null
+              : allowed[0] ?? "";
+        break;
+      }
       case "boolean":
         data[field.name] = raw === "true" || raw === "on" || raw === "1";
         break;

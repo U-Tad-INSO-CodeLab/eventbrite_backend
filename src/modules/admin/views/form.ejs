@@ -3,6 +3,8 @@
   if (words[words.length - 1] === 'id') words.pop()
   return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 } %>
+<% const formatEnumOptionLabel = s =>
+  String(s).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') %>
 
 <div class="mb-6">
   <a href="/admin/<%= modelKey %>"
@@ -73,6 +75,19 @@
             <% for (const opt of opts) { %>
               <option value="<%= opt.id %>" <%= Number(v) === opt.id ? 'selected' : '' %>>
                 <%= opt.label %>
+              </option>
+            <% } %>
+          </select>
+
+        <% } else if (field.type === 'enum') { %>
+          <% const ev = field.enumValues || [] %>
+          <select name="<%= field.name %>" class="<%= inputClass %> bg-white">
+            <% if (field.optional) { %>
+              <option value="">— None —</option>
+            <% } %>
+            <% for (const evVal of ev) { %>
+              <option value="<%= evVal %>" <%= v === evVal ? 'selected' : '' %>>
+                <%= formatEnumOptionLabel(evVal) %>
               </option>
             <% } %>
           </select>

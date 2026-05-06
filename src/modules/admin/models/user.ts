@@ -1,3 +1,4 @@
+import { UserType } from "@/core/prisma/generated/client";
 import { ModelConfig } from "@/modules/admin/types/model";
 
 export const userModel: ModelConfig = {
@@ -18,7 +19,11 @@ export const userModel: ModelConfig = {
     { name: "surname", type: "string" },
     { name: "email", type: "string" },
     { name: "password", type: "password" },
-    { name: "user_type", type: "string" },
+    {
+      name: "user_type",
+      type: "enum",
+      enumValues: [...Object.values(UserType)],
+    },
     { name: "enabled", type: "boolean" },
   ],
 };

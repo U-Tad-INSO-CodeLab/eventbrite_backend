@@ -7,6 +7,9 @@
 
   const fieldMetaMap = {}
   for (const f of config.editFields) fieldMetaMap[f.name] = f
+
+  const formatEnumCell = s =>
+    String(s).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
 %>
 
 <div class="flex items-center justify-between mb-6">
@@ -68,6 +71,9 @@
                     </svg>
                   </span>
                 <% } %>
+
+              <% } else if (meta && meta.type === 'enum' && raw != null && raw !== '') { %>
+                <span class="text-slate-800"><%= formatEnumCell(raw) %></span>
 
               <% } else if (meta && meta.type === 'datetime' && raw) { %>
                 <span class="text-slate-500 text-xs"><%= new Date(raw).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) %></span>

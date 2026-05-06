@@ -5,7 +5,8 @@ export type FieldType =
   | "text"
   | "password"
   | "datetime"
-  | "relation";
+  | "relation"
+  | "enum";
 
 export type RelationConfig = {
   model: string;
@@ -17,4 +18,6 @@ export type FieldConfig = {
   type: FieldType;
   optional?: boolean;
   relation?: RelationConfig;
+  /** Prisma enum string values (e.g. Object.values(UserType)) */
+  enumValues?: string[];
 };
