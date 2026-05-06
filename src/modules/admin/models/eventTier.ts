@@ -8,7 +8,7 @@ export const eventTierModel: ModelConfig = {
     { name: "name", type: "string" },
     { name: "price", type: "number" },
     { name: "benefits", type: "text" },
-    { name: "event_id", type: "number" },
-    { name: "tier_creator_id", type: "number" },
+    { name: "event_id", type: "relation", relation: { model: "event", labelField: "title" } },
+    { name: "tier_creator_id", type: "relation", relation: { model: "user", labelField: "username" } },
   ],
 };

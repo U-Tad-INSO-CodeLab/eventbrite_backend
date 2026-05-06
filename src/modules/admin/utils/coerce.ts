@@ -23,9 +23,10 @@ export async function coerceBody(
     }
 
     switch (field.type) {
-      case "number":
-        data[field.name] = raw ? Number(raw) : field.optional ? null : 0;
-        break;
+          case "number":
+          case "relation":
+              data[field.name] = raw ? Number(raw) : field.optional ? null : 0;
+              break;
       case "boolean":
         data[field.name] = raw === "true" || raw === "on" || raw === "1";
         break;

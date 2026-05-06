@@ -8,6 +8,6 @@ export const defaultTierModel: ModelConfig = {
     { name: "name", type: "string" },
     { name: "price", type: "number" },
     { name: "benefits", type: "text" },
-    { name: "event_creator_id", type: "number" },
+    { name: "event_creator_id", type: "relation", relation: { model: "user", labelField: "username" } },
   ],
 };

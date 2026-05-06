@@ -4,10 +4,17 @@ export type FieldType =
   | "boolean"
   | "text"
   | "password"
-  | "datetime";
+  | "datetime"
+  | "relation";
+
+export type RelationConfig = {
+  model: string;
+  labelField: string;
+};
 
 export type FieldConfig = {
   name: string;
   type: FieldType;
   optional?: boolean;
+  relation?: RelationConfig;
 };

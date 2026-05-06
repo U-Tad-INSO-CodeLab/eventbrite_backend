@@ -7,7 +7,7 @@ export const messageModel: ModelConfig = {
   editFields: [
     { name: "message", type: "text" },
     { name: "last_read", type: "datetime", optional: true },
-    { name: "conversation_id", type: "number" },
-    { name: "sender_id", type: "number" },
+    { name: "conversation_id", type: "relation", relation: { model: "conversation", labelField: "id" } },
+    { name: "sender_id", type: "relation", relation: { model: "user", labelField: "username" } },
   ],
 };

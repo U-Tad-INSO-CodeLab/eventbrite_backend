@@ -5,7 +5,7 @@ export const conversationModel: ModelConfig = {
   prismaModel: "conversation",
   listFields: ["id", "event_creator_id", "event_sponsor_id"],
   editFields: [
-    { name: "event_creator_id", type: "number" },
-    { name: "event_sponsor_id", type: "number" },
+    { name: "event_creator_id", type: "relation", relation: { model: "user", labelField: "username" } },
+    { name: "event_sponsor_id", type: "relation", relation: { model: "user", labelField: "username" } },
   ],
 };
