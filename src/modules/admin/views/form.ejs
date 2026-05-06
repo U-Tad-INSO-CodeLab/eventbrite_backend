@@ -1,0 +1,109 @@
+<% const formatLabel = s => {
+  const words = s.split('_')
+  if (words[words.length - 1] === 'id') words.pop()
+  return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+} %>
+<% const formatEnumOptionLabel = s =>
+  String(s).split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ') %>
+
+<div class="mb-6">
+  <a href="/admin/<%= modelKey %>"
+    class="inline-flex items-center text-sm text-slate-400 hover:text-slate-700 transition-colors">
+    ← Back to <%= config.label %>
+  </a>
+</div>
+
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-7 max-w-xl">
+  <h1 class="text-xl font-bold text-slate-800 mb-6">
+    <%= row ? 'Edit' : 'Create' %> <%= config.label %>
+  </h1>
+
+  <form method="POST" action="/admin/<%= modelKey %><%= row ? '/' + row.id : '' %>" class="space-y-5">
+
+    <% for (const field of config.editFields) { %>
+      <% const v = row && row[field.name] != null ? String(row[field.name]) : '' %>
+      <% const inputClass = "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition" %>
+
+      <% if (field.type === 'boolean') { %>
+        <div class="flex flex-row items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-3.5">
+          <span class="text-sm font-medium text-slate-700 min-w-0">
+            <%= formatLabel(field.name) %>
+            <% if (field.optional) { %>
+              <span class="text-slate-400 font-normal text-xs ml-1">(optional)</span>
+            <% } %>
+          </span>
+          <label class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer select-none">
+            <input type="checkbox" name="<%= field.name %>" value="true"
+              <%= v === 'true' ? 'checked' : '' %>
+              class="peer sr-only"/>
+            <span class="absolute inset-0 rounded-full bg-slate-300 transition-colors duration-200 peer-checked:bg-indigo-600 peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-white"></span>
+            <span class="pointer-events-none absolute left-0.5 top-0.5 z-10 h-6 w-6 rounded-full bg-white shadow-md ring-1 ring-slate-900/10 transition-transform duration-200 ease-out peer-checked:translate-x-5"></span>
+          </label>
+        </div>
+
+      <% } else { %>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          <%= formatLabel(field.name) %>
+          <% if (field.optional) { %>
+            <span class="text-slate-400 font-normal text-xs ml-1">(optional)</span>
+          <% } %>
+        </label>
+
+        <% if (field.type === 'text') { %>
+          <textarea name="<%= field.name %>"
+            class="<%= inputClass %> min-h-[80px] resize-y"><%= v %></textarea>
+
+        <% } else if (field.type === 'number') { %>
+          <input type="number" name="<%= field.name %>" value="<%= v %>" class="<%= inputClass %>"/>
+
+        <% } else if (field.type === 'datetime') { %>
+          <% const dtVal = v ? new Date(v).toISOString().slice(0, 16) : '' %>
+          <input type="datetime-local" name="<%= field.name %>" value="<%= dtVal %>" class="<%= inputClass %>"/>
+
+        <% } else if (field.type === 'password') { %>
+          <input type="password" name="<%= field.name %>" autocomplete="new-password"
+            placeholder="<%= row ? 'Leave blank to keep unchanged' : '' %>"
+            class="<%= inputClass %>"/>
+
+        <% } else if (field.type === 'relation') { %>
+          <% const opts = (relationOptions && relationOptions[field.name]) || [] %>
+          <select name="<%= field.name %>" class="<%= inputClass %> bg-white">
+            <% if (field.optional) { %>
+              <option value="">— None —</option>
+            <% } %>
+            <% for (const opt of opts) { %>
+              <option value="<%= opt.id %>" <%= Number(v) === opt.id ? 'selected' : '' %>>
+                <%= opt.label %>
+              </option>
+            <% } %>
+          </select>
+
+        <% } else if (field.type === 'enum') { %>
+          <% const ev = field.enumValues || [] %>
+          <select name="<%= field.name %>" class="<%= inputClass %> bg-white">
+            <% if (field.optional) { %>
+              <option value="">— None —</option>
+            <% } %>
+            <% for (const evVal of ev) { %>
+              <option value="<%= evVal %>" <%= v === evVal ? 'selected' : '' %>>
+                <%= formatEnumOptionLabel(evVal) %>
+              </option>
+            <% } %>
+          </select>
+
+        <% } else { %>
+          <input type="text" name="<%= field.name %>" value="<%= v %>" class="<%= inputClass %>"/>
+        <% } %>
+      </div>
+      <% } %>
+    <% } %>
+
+    <div class="pt-2">
+      <button type="submit"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
+        <%= row ? 'Save changes' : 'Create' %>
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,48 @@
+<%- include('partials/_head', { title: 'Login' }) %>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-sm px-4">
+    <div class="text-center mb-8">
+      <span
+        class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 ring-1 ring-white/20 mb-4 mx-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-9 h-9 text-white" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+          aria-hidden="true">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </span>
+      <h1 class="text-white text-2xl font-bold tracking-tight">Eventlink Admin</h1>
+      <p class="text-slate-400 text-sm mt-1">Sign in to your account</p>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl px-8 py-8">
+
+      <% if (error) { %>
+        <div class="mb-5 rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/login" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1.5">Email or username</label>
+          <input type="text" name="email" required autofocus autocomplete="username"
+            class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2.5 text-sm
+              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-500 transition"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+          <input type="password" name="password" required
+            class="w-full bg-slate-800 border border-slate-700 text-white rounded-lg px-3 py-2.5 text-sm
+              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-500 transition"/>
+        </div>
+        <button type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg py-2.5 text-sm transition-colors mt-2">
+          Sign in
+        </button>
+      </form>
+    </div>
+  </div>
+
+<%- include('partials/_foot') %>
