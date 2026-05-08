@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { errorHandler } from "@/core/middleware/errorHandler";
 import { sessionStoreMiddleware } from "@/core/config/sessionStore";
 import authRouter from "@/modules/auth/routes/auth";
+import chatRouter from "@/modules/chat/routes/chat";
 import { adminRouter } from "@/modules/admin/routes/admin";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +32,7 @@ export function createServer(): Application {
   app.use(express.urlencoded({ extended: true }));
 
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/chat", chatRouter);
 
   app.use(errorHandler);
 
