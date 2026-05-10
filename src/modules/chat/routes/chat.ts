@@ -3,7 +3,6 @@ import { authMiddleware } from "@/modules/auth/middleware/auth";
 import { getAblyToken } from "@/modules/chat/controllers/token";
 import {
   getConversations,
-  getConversationById,
   initializeConversationForEvent,
 } from "@/modules/chat/controllers/conversations";
 import { getMessages, sendMessage } from "@/modules/chat/controllers/messages";
@@ -17,7 +16,6 @@ chatRouter.use(authMiddleware);
 chatRouter.get("/token", getAblyToken);
 
 chatRouter.get("/conversations", getConversations);
-chatRouter.get("/conversation/:id", getConversationById);
 chatRouter.post(
   "/conversation",
   validateInitializeConversation,

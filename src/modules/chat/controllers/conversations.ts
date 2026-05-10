@@ -88,23 +88,3 @@ export const initializeConversationForEvent = async (
 
   res.status(status.OK).json(conversation);
 };
-
-export const getConversationById = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
-  const conversationId = Number(req.params.id);
-
-  const conversation = await prisma.conversation.findFirst({
-    where: {
-      id: conversationId,
-      OR: [{ event_creator_id: user.id }, { event_sponsor_id: user.id }],
-    },
-    include: conversationQueryIncludeFields,
-  });
-
-  if (!conversation) {
-    res.status(status.NOT_FOUND).json({ message: "Conversation not found" });
-    return;
-  }
-
-  res.status(status.OK).json(conversation);
-};
