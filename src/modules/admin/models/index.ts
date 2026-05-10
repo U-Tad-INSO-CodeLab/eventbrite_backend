@@ -5,7 +5,7 @@ import { eventTierModel } from "@/modules/admin/models/eventTier";
 import { proposalModel } from "@/modules/admin/models/proposal";
 import { conversationModel } from "@/modules/admin/models/conversation";
 import { messageModel } from "@/modules/admin/models/message";
-import { ModelConfig } from "@/modules/admin/types/index";
+import { ModelConfig } from "@/modules/admin/types/model";
 
 export const models: Record<string, ModelConfig> = {
   user: userModel,
