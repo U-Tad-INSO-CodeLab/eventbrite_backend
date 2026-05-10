@@ -19,12 +19,12 @@ chatRouter.get("/token", getAblyToken);
 chatRouter.get("/conversations", getConversations);
 chatRouter.get("/conversation/:id", getConversationById);
 chatRouter.post(
-  "/conversations",
+  "/conversation",
   validateInitializeConversation,
   initializeConversationForEvent,
 );
 
-chatRouter.get("/conversations/:id/messages", getMessages);
-chatRouter.post("/conversations/:id/messages", validateMessage, sendMessage);
+chatRouter.get("/conversation/:id/messages", getMessages);
+chatRouter.post("/conversation/:id/message", validateMessage, sendMessage);
 
 export default chatRouter;
