@@ -6,6 +6,7 @@ const DESCRIPTION_MAX = 50_000;
 const LOCATION_MAX = 500;
 const INDUSTRY_MAX = 200;
 const TAGS_MAX = 2000;
+const TARGET_AMOUNT_MAX = 99_999_999.99;
 
 /**
  * Validates `multipart/form-data` body fields (all string values from Multer).
@@ -60,6 +61,27 @@ export const validateCreateEventMultipart = (
     errors.push("expected_attendance must be a non-negative number");
   }
 
+  const targetRawSource = b.target_amount ?? b["targetAmount"];
+  const targetRaw =
+    targetRawSource != null ? String(targetRawSource).trim() : "";
+  if (!targetRaw) {
+    errors.push("target_amount is required");
+  } else {
+    const targetNum = Number(targetRaw);
+    if (
+      Number.isNaN(targetNum) ||
+      targetNum < 0 ||
+      !Number.isFinite(targetNum) ||
+      targetNum > TARGET_AMOUNT_MAX
+    ) {
+      errors.push(
+        `target_amount must be a number between 0 and ${TARGET_AMOUNT_MAX}`,
+      );
+    } else if (!/^\d+(\.\d{1,2})?$/.test(targetRaw)) {
+      errors.push("target_amount must have at most 2 decimal places");
+    }
+  }
+
   let tags: string | undefined;
   if (b.tags != null && String(b.tags).trim() !== "") {
     tags = String(b.tags).trim();
@@ -82,6 +104,7 @@ export const validateCreateEventMultipart = (
     location,
     industry_field,
     expected_attendance: Math.trunc(attendance),
+    target_amount: targetRaw,
     ...(tags !== undefined ? { tags } : {}),
   };
 

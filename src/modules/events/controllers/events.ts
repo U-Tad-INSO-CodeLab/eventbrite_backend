@@ -28,6 +28,7 @@ export const createEvent = async (req: Request, res: Response) => {
     location,
     industry_field,
     expected_attendance,
+    target_amount,
     tags,
   } = req.body as {
     title: string;
@@ -36,6 +37,7 @@ export const createEvent = async (req: Request, res: Response) => {
     location: string;
     industry_field: string;
     expected_attendance: number;
+    target_amount: string;
     tags?: string;
   };
 
@@ -53,6 +55,7 @@ export const createEvent = async (req: Request, res: Response) => {
       location,
       industry_field,
       expected_attendance,
+      target_amount,
       tags: tags ?? null,
       event_creator_id: contextUser.id,
     },

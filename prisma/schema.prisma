@@ -69,6 +69,7 @@ model Event {
     location            String
     industry_field      String
     expected_attendance Int
+    target_amount       Decimal? @db.Decimal(10, 2)
     tags                String?
 
     //Relationship with the creator
