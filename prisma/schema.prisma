@@ -64,7 +64,7 @@ model Event {
     id                  Int      @id @default(autoincrement())
     title               String
     description         String   @db.Text
-    cover_image         String?
+    cover_image         String?  @db.VarChar(2048)
     date                DateTime
     location            String
     industry_field      String
