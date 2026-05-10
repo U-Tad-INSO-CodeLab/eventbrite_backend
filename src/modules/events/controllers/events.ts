@@ -57,6 +57,7 @@ export const createEvent = async (req: Request, res: Response) => {
       expected_attendance,
       target_amount,
       tags: tags ?? null,
+      published: true,
       event_creator_id: contextUser.id,
     },
   });

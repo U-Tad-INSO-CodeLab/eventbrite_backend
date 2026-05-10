@@ -71,6 +71,7 @@ model Event {
     expected_attendance Int
     target_amount       Decimal? @db.Decimal(10, 2)
     tags                String?
+    published           Boolean  @default(true)
 
     //Relationship with the creator
     event_creator_id Int
