@@ -8,6 +8,7 @@ import { errorHandler } from "@/core/middleware/errorHandler";
 import { sessionStoreMiddleware } from "@/core/config/sessionStore";
 import authRouter from "@/modules/auth/routes/auth";
 import chatRouter from "@/modules/chat/routes/chat";
+import eventsRouter from "@/modules/events/routes/events";
 import { adminRouter } from "@/modules/admin/routes/admin";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,12 +27,17 @@ export function createServer(): Application {
   app.use(expressLayouts);
   app.set("layout", "layouts/main");
   app.use("/admin", adminRouter);
+  
+  // Static files
+  const publicUploadsDir = path.join(process.cwd(), "uploads");
+  app.use("/uploads", express.static(publicUploadsDir));
 
   // API routes
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
   app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/events", eventsRouter);
   app.use("/api/v1/chat", chatRouter);
 
   app.use(errorHandler);
