@@ -1,3 +1,9 @@
+import {
+  EVENT_TAG_OPTIONS,
+  EVENT_TAGS_MAX,
+  eventTagsAllowedDescription,
+  isAllowedEventTag,
+} from "@/modules/events/constants/eventTags";
 import { NextFunction, Request, Response } from "express";
 import status from "http-status";
 
@@ -5,8 +11,11 @@ const TITLE_MAX = 200;
 const DESCRIPTION_MAX = 50_000;
 const LOCATION_MAX = 500;
 const INDUSTRY_MAX = 200;
-const TAGS_MAX = 2000;
 const TARGET_AMOUNT_MAX = 99_999_999.99;
+
+const TAG_ORDER = new Map<string, number>(
+  EVENT_TAG_OPTIONS.map((t, i) => [t, i]),
+);
 
 /**
  * Validates `multipart/form-data` body fields (all string values from Multer).
@@ -84,9 +93,23 @@ export const validateCreateEventMultipart = (
 
   let tags: string | undefined;
   if (b.tags != null && String(b.tags).trim() !== "") {
-    tags = String(b.tags).trim();
-    if (tags.length > TAGS_MAX)
-      errors.push(`tags must be at most ${TAGS_MAX} characters`);
+    const tokens = String(b.tags)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const unique = [...new Set(tokens)];
+    if (unique.length > EVENT_TAGS_MAX) {
+      errors.push(`at most ${EVENT_TAGS_MAX} distinct tags are allowed`);
+    }
+    const invalid = unique.filter((t) => !isAllowedEventTag(t));
+    if (invalid.length > 0) {
+      errors.push(
+        `unknown tags: ${invalid.join(", ")}. Allowed: ${eventTagsAllowedDescription()}`,
+      );
+    } else if (unique.length > 0) {
+      unique.sort((a, b) => (TAG_ORDER.get(a) ?? 0) - (TAG_ORDER.get(b) ?? 0));
+      tags = unique.join(", ");
+    }
   }
 
   if (errors.length > 0) {

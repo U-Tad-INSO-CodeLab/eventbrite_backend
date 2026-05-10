@@ -1,10 +1,59 @@
 import { prisma } from "@/core/prisma/client";
-import { UserType } from "@/core/prisma/generated/client";
+import { Prisma, UserType } from "@/core/prisma/generated/client";
 import { getContextUser } from "@/modules/auth/utils/context";
+import { EVENT_TAG_OPTIONS } from "@/modules/events/constants/eventTags";
 import { EVENT_UPLOAD_SUBDIR } from "@/modules/events/middleware/uploadEventCover";
+import {
+  SPONSOR_EVENTS_PAGE_SIZE,
+  type SponsorEventsQuery,
+} from "@/modules/events/validators/queryEvents";
 import { Request, Response } from "express";
 import path from "path";
 import status from "http-status";
+
+function buildSponsorEventWhere(
+  filters: SponsorEventsQuery,
+): Prisma.EventWhereInput {
+  const where: Prisma.EventWhereInput = {
+    published: true,
+  };
+
+  if (filters.target_amount_from != null || filters.target_amount_to != null) {
+    where.target_amount = {};
+    if (filters.target_amount_from != null) {
+      where.target_amount.gte = filters.target_amount_from;
+    }
+    if (filters.target_amount_to != null) {
+      where.target_amount.lte = filters.target_amount_to;
+    }
+  }
+
+  if (filters.audience_from != null || filters.audience_to != null) {
+    where.expected_attendance = {};
+    if (filters.audience_from != null) {
+      where.expected_attendance.gte = filters.audience_from;
+    }
+    if (filters.audience_to != null) {
+      where.expected_attendance.lte = filters.audience_to;
+    }
+  }
+
+  if (filters.location !== "all") {
+    where.location = filters.location;
+  }
+
+  if (filters.industry !== "all") {
+    where.industry_field = filters.industry;
+  }
+
+  if (filters.tags.length > 0) {
+    where.AND = filters.tags.map((tag) => ({
+      tags: { contains: tag },
+    }));
+  }
+
+  return where;
+}
 
 export const createEvent = async (req: Request, res: Response) => {
   const contextUser = getContextUser();
@@ -43,7 +92,11 @@ export const createEvent = async (req: Request, res: Response) => {
 
   const file = req.file;
   const cover_image = file
-    ? path.posix.join("/", EVENT_UPLOAD_SUBDIR.replace(/\\/g, "/"), file.filename)
+    ? path.posix.join(
+        "/",
+        EVENT_UPLOAD_SUBDIR.replace(/\\/g, "/"),
+        file.filename,
+      )
     : null;
 
   const event = await prisma.event.create({
@@ -63,4 +116,84 @@ export const createEvent = async (req: Request, res: Response) => {
   });
 
   res.status(status.CREATED).json({ event });
+};
+
+export const getMyEvents = async (req: Request, res: Response) => {
+  const contextUser = getContextUser();
+
+  if (!contextUser) {
+    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
+    return;
+  }
+
+  if (contextUser.user_type !== UserType.creator) {
+    res
+      .status(status.FORBIDDEN)
+      .json({ message: "Only creators can list their own events" });
+    return;
+  }
+
+  const events = await prisma.event.findMany({
+    where: { event_creator_id: contextUser.id },
+    orderBy: { date: "desc" },
+  });
+
+  res.status(status.OK).json({ events });
+};
+
+export const queryEvents = async (req: Request, res: Response) => {
+  const contextUser = getContextUser();
+
+  if (!contextUser) {
+    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
+    return;
+  }
+
+  if (contextUser.user_type !== UserType.sponsor) {
+    res
+      .status(status.FORBIDDEN)
+      .json({ message: "Only sponsors can search events" });
+    return;
+  }
+
+  const filters = res.locals.sponsorEventsQuery;
+  if (!filters) {
+    res
+      .status(status.INTERNAL_SERVER_ERROR)
+      .json({ message: "Missing validated query" });
+    return;
+  }
+
+  const where = buildSponsorEventWhere(filters);
+  const skip = (filters.page - 1) * SPONSOR_EVENTS_PAGE_SIZE;
+
+  const [total, events, locationGroups] = await Promise.all([
+    prisma.event.count({ where }),
+    prisma.event.findMany({
+      where,
+      orderBy: { date: "desc" },
+      skip,
+      take: SPONSOR_EVENTS_PAGE_SIZE,
+    }),
+    prisma.event.groupBy({
+      by: ["location"],
+      where: { published: true },
+    }),
+  ]);
+
+  const totalPages = Math.ceil(total / SPONSOR_EVENTS_PAGE_SIZE);
+
+  const locations = locationGroups
+    .map((row) => row.location)
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+  res.status(status.OK).json({
+    events,
+    page: filters.page,
+    pageSize: SPONSOR_EVENTS_PAGE_SIZE,
+    total,
+    totalPages,
+    locations,
+    tags: [...EVENT_TAG_OPTIONS],
+  });
 };
