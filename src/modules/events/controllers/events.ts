@@ -43,7 +43,11 @@ export const createEvent = async (req: Request, res: Response) => {
 
   const file = req.file;
   const cover_image = file
-    ? path.posix.join("/", EVENT_UPLOAD_SUBDIR.replace(/\\/g, "/"), file.filename)
+    ? path.posix.join(
+        "/",
+        EVENT_UPLOAD_SUBDIR.replace(/\\/g, "/"),
+        file.filename,
+      )
     : null;
 
   const event = await prisma.event.create({
@@ -56,7 +60,7 @@ export const createEvent = async (req: Request, res: Response) => {
       industry_field,
       expected_attendance,
       target_amount,
-      tags: tags ?? null,
+      tags: typeof tags === "string" && tags.trim() !== "" ? tags.trim() : null,
       published: true,
       event_creator_id: contextUser.id,
     },

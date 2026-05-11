@@ -1,14 +1,7 @@
-import { body } from "validate-express-req-body";
+import { body } from "express-validator";
+import { createValidator } from "@/core/middleware/validation";
 
-export const validateLogin = body([
-  {
-    key: "username",
-    type: "string",
-    required: true,
-  },
-  {
-    key: "password",
-    type: "string",
-    required: true,
-  },
+export const loginValidators = createValidator([
+  body("username").trim().notEmpty(),
+  body("password").notEmpty(),
 ]);

@@ -1,42 +1,11 @@
-import { body } from "validate-express-req-body";
+import { body } from "express-validator";
+import { createValidator } from "@/core/middleware/validation";
 
-export const validateRegister = body([
-  {
-    key: "username",
-    type: "string",
-    required: true,
-    min: 3,
-    max: 30,
-  },
-  {
-    key: "email",
-    type: "email",
-    required: true,
-    regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-  },
-  {
-    key: "password",
-    type: "string",
-    required: true,
-    min: 6,
-  },
-  {
-    key: "confirmPassword",
-    type: "string",
-    required: true,
-  },
-  {
-    key: "name",
-    type: "string",
-    required: true,
-    min: 1,
-    max: 50,
-  },
-  {
-    key: "surname",
-    type: "string",
-    required: true,
-    min: 1,
-    max: 50,
-  },
+export const registerValidators = createValidator([
+  body("username").trim().notEmpty().isLength({ min: 3, max: 30 }),
+  body("email").trim().notEmpty().isEmail(),
+  body("password").notEmpty().isLength({ min: 6 }),
+  body("confirmPassword").notEmpty(),
+  body("name").trim().notEmpty().isLength({ min: 1, max: 50 }),
+  body("surname").trim().notEmpty().isLength({ min: 1, max: 50 }),
 ]);
