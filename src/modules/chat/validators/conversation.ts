@@ -1,5 +1,6 @@
-import { body } from "validate-express-req-body";
+import { body } from "express-validator";
+import { createValidator } from "@/core/middleware/validation";
 
-export const validateInitializeConversation = body([
-  { key: "event_id", type: "number", required: true },
+export const initializeConversationValidators = createValidator([
+  body("event_id").notEmpty().bail().isInt({ min: 1 }).toInt(),
 ]);

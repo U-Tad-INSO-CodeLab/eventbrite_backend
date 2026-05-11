@@ -6,8 +6,8 @@ import {
   initializeConversationForEvent,
 } from "@/modules/chat/controllers/conversations";
 import { getMessages, sendMessage } from "@/modules/chat/controllers/messages";
-import { validateInitializeConversation } from "@/modules/chat/validators/conversation";
-import { validateMessage } from "@/modules/chat/validators/message";
+import { initializeConversationValidators } from "@/modules/chat/validators/conversation";
+import { messageValidators } from "@/modules/chat/validators/message";
 
 const chatRouter = express.Router();
 
@@ -18,11 +18,11 @@ chatRouter.get("/token", getAblyToken);
 chatRouter.get("/conversations", getConversations);
 chatRouter.post(
   "/conversation",
-  validateInitializeConversation,
+  initializeConversationValidators,
   initializeConversationForEvent,
 );
 
 chatRouter.get("/conversation/:id/messages", getMessages);
-chatRouter.post("/conversation/:id/message", validateMessage, sendMessage);
+chatRouter.post("/conversation/:id/message", messageValidators, sendMessage);
 
 export default chatRouter;
