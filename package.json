@@ -11,6 +11,7 @@
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@types/ejs": "^3.1.5",
+    "ably": "^2.21.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
@@ -20,10 +21,10 @@
     "express-http-context": "^2.0.1",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.19.0",
+    "express-validator": "^7.3.2",
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1",
-    "validate-express-req-body": "^1.5.2"
+    "multer": "^2.1.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

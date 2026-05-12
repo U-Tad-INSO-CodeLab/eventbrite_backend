@@ -78,7 +78,8 @@ model Event {
     event_creator    User @relation("EventCreator", fields: [event_creator_id], references: [id])
 
     //Event tiers
-    event_tiers EventTier[]
+    event_tiers   EventTier[]
+    conversations Conversation[]
 
     @@map("events")
 }
@@ -149,11 +150,15 @@ model Conversation {
     event_sponsor_id Int
     event_sponsor    User @relation("ConversationSponsor", fields: [event_sponsor_id], references: [id])
 
+    //Conversation event
+    event_id Int
+    event    Event @relation(fields: [event_id], references: [id])
+
     //Conversation messages
     messages Message[]
 
-    //A single thread per creator/sponsor pair
-    @@unique([event_creator_id, event_sponsor_id])
+    //A single thread per creator, sponsor and event
+    @@unique([event_creator_id, event_sponsor_id, event_id])
     @@map("conversations")
 }
 

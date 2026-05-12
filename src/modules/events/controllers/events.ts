@@ -1,5 +1,5 @@
 import { prisma } from "@/core/prisma/client";
-import { Prisma, UserType } from "@/core/prisma/generated/client";
+import { Prisma } from "@/core/prisma/generated/client";
 import { getContextUser } from "@/modules/auth/utils/context";
 import { EVENT_TAG_OPTIONS } from "@/modules/events/constants/eventTags";
 import { EVENT_UPLOAD_SUBDIR } from "@/modules/events/middleware/uploadEventCover";
@@ -63,13 +63,6 @@ export const createEvent = async (req: Request, res: Response) => {
     return;
   }
 
-  if (contextUser.user_type !== UserType.creator) {
-    res
-      .status(status.FORBIDDEN)
-      .json({ message: "Only creators can create events" });
-    return;
-  }
-
   const {
     title,
     description,
@@ -99,6 +92,9 @@ export const createEvent = async (req: Request, res: Response) => {
       )
     : null;
 
+  const tagsValue =
+    typeof tags === "string" && tags.trim() !== "" ? tags.trim() : null;
+
   const event = await prisma.event.create({
     data: {
       title,
@@ -109,7 +105,7 @@ export const createEvent = async (req: Request, res: Response) => {
       industry_field,
       expected_attendance,
       target_amount,
-      tags: tags ?? null,
+      tags: tagsValue,
       published: true,
       event_creator_id: contextUser.id,
     },
@@ -126,13 +122,6 @@ export const getMyEvents = async (req: Request, res: Response) => {
     return;
   }
 
-  if (contextUser.user_type !== UserType.creator) {
-    res
-      .status(status.FORBIDDEN)
-      .json({ message: "Only creators can list their own events" });
-    return;
-  }
-
   const events = await prisma.event.findMany({
     where: { event_creator_id: contextUser.id },
     orderBy: { date: "desc" },
@@ -146,13 +135,6 @@ export const queryEvents = async (req: Request, res: Response) => {
 
   if (!contextUser) {
     res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
-
-  if (contextUser.user_type !== UserType.sponsor) {
-    res
-      .status(status.FORBIDDEN)
-      .json({ message: "Only sponsors can search events" });
     return;
   }
 
@@ -194,6 +176,6 @@ export const queryEvents = async (req: Request, res: Response) => {
     total,
     totalPages,
     locations,
-    tags: [...EVENT_TAG_OPTIONS],
+    availableTags: [...EVENT_TAG_OPTIONS],
   });
 };
