@@ -30,12 +30,11 @@ export async function coerceBody(
       case "enum": {
         const val = raw ?? "";
         const allowed = field.enumValues ?? [];
-        data[field.name] =
-          allowed.includes(val)
-            ? val
-            : field.optional && val === ""
-              ? null
-              : allowed[0] ?? "";
+        data[field.name] = allowed.includes(val)
+          ? val
+          : field.optional && val === ""
+            ? null
+            : (allowed[0] ?? "");
         break;
       }
       case "boolean":

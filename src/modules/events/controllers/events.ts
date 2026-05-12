@@ -1,5 +1,4 @@
 import { prisma } from "@/core/prisma/client";
-import { UserType } from "@/core/prisma/generated/client";
 import { getContextUser } from "@/modules/auth/utils/context";
 import { EVENT_UPLOAD_SUBDIR } from "@/modules/events/middleware/uploadEventCover";
 import { Request, Response } from "express";
@@ -11,13 +10,6 @@ export const createEvent = async (req: Request, res: Response) => {
 
   if (!contextUser) {
     res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
-
-  if (contextUser.user_type !== UserType.creator) {
-    res
-      .status(status.FORBIDDEN)
-      .json({ message: "Only creators can create events" });
     return;
   }
 

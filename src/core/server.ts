@@ -27,7 +27,7 @@ export function createServer(): Application {
   app.use(expressLayouts);
   app.set("layout", "layouts/main");
   app.use("/admin", adminRouter);
-  
+
   // Static files
   const publicUploadsDir = path.join(process.cwd(), "uploads");
   app.use("/uploads", express.static(publicUploadsDir));
