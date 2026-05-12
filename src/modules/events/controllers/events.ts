@@ -56,12 +56,7 @@ function buildSponsorEventWhere(
 }
 
 export const createEvent = async (req: Request, res: Response) => {
-  const contextUser = getContextUser();
-
-  if (!contextUser) {
-    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
+  const event_creator_id = getContextUser()!.id;
 
   const {
     title,
@@ -107,7 +102,7 @@ export const createEvent = async (req: Request, res: Response) => {
       target_amount,
       tags: tagsValue,
       published: true,
-      event_creator_id: contextUser.id,
+      event_creator_id,
     },
   });
 
@@ -115,15 +110,8 @@ export const createEvent = async (req: Request, res: Response) => {
 };
 
 export const getMyEvents = async (req: Request, res: Response) => {
-  const contextUser = getContextUser();
-
-  if (!contextUser) {
-    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
-
   const events = await prisma.event.findMany({
-    where: { event_creator_id: contextUser.id },
+    where: { event_creator_id: getContextUser()!.id },
     orderBy: { date: "desc" },
   });
 
@@ -131,13 +119,6 @@ export const getMyEvents = async (req: Request, res: Response) => {
 };
 
 export const queryEvents = async (req: Request, res: Response) => {
-  const contextUser = getContextUser();
-
-  if (!contextUser) {
-    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
-
   const filters = res.locals.sponsorEventsQuery;
   if (!filters) {
     res
