@@ -60,3 +60,42 @@ export const createEvent = async (req: Request, res: Response) => {
 
   res.status(status.CREATED).json({ event });
 };
+
+const updatePublishedForCreator = async (
+  req: Request,
+  res: Response,
+  published: boolean,
+) => {
+  const contextUser = getContextUser();
+
+  if (!contextUser) {
+    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const id = Number(req.params.id);
+
+  const existing = await prisma.event.findFirst({
+    where: { id, event_creator_id: contextUser.id },
+  });
+
+  if (!existing) {
+    res.status(status.NOT_FOUND).json({ message: "Event not found" });
+    return;
+  }
+
+  const event = await prisma.event.update({
+    where: { id },
+    data: { published },
+  });
+
+  res.status(status.OK).json({ event });
+};
+
+export const publishEvent = async (req: Request, res: Response) => {
+  await updatePublishedForCreator(req, res, true);
+};
+
+export const unpublishEvent = async (req: Request, res: Response) => {
+  await updatePublishedForCreator(req, res, false);
+};
