@@ -3,6 +3,8 @@ import {
   createEvent,
   getMyEvents,
   queryEvents,
+  publishEvent,
+  unpublishEvent,
 } from "@/modules/events/controllers/events";
 import {
   createDefaultTier,
@@ -19,6 +21,7 @@ import {
   validateDefaultTierIdParam,
 } from "@/modules/events/validators/defaultTier";
 import { validateQueryEvents } from "@/modules/events/validators/queryEvents";
+import { validateEventIdParam } from "@/modules/events/validators/eventId";
 
 const eventsRouter = express.Router();
 
@@ -67,6 +70,21 @@ eventsRouter.delete(
   requireCreator,
   validateDefaultTierIdParam,
   deleteDefaultTier,
+);
+
+eventsRouter.post(
+  "/:id/publish",
+  authMiddleware,
+  requireCreator,
+  validateEventIdParam,
+  publishEvent,
+);
+eventsRouter.post(
+  "/:id/unpublish",
+  authMiddleware,
+  requireCreator,
+  validateEventIdParam,
+  unpublishEvent,
 );
 
 export default eventsRouter;
