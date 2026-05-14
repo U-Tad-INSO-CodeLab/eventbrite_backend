@@ -36,7 +36,7 @@ export const  buildSponsorEventWhere = (
       where.industry_field = filters.industry;
     }
   
-    if (filters.tags.length > 0) {
+    if (filters.tags && filters.tags.length > 0) {
       where.AND = filters.tags.map((tag) => ({
         tags: { contains: tag },
       }));

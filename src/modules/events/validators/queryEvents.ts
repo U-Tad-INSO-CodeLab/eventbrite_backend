@@ -1,5 +1,4 @@
-import { matchedData, query } from "express-validator";
-import type { RequestHandler } from "express";
+import { query } from "express-validator";
 import { createValidator } from "@/core/middleware/validation";
 import {
   EVENT_TAGS_MAX,
@@ -22,7 +21,7 @@ export type SponsorEventsQuery = {
   audience_to?: number;
   location: string;
   industry: string;
-  tags: string[];
+  tags?: string[];
 };
 
 const ALL_SENTINEL = "all";
@@ -36,7 +35,7 @@ function singleQueryValue(value: unknown): string {
   return String(value);
 }
 
-const sponsorQueryChains = [
+export const validateQueryEvents = createValidator([
   query("target_amount_from")
     .optional({ values: "falsy" })
     .trim()
@@ -154,56 +153,4 @@ const sponsorQueryChains = [
     .toInt()
     .isInt({ min: 1 })
     .withMessage("page must be a positive integer"),
-];
-
-const runSponsorQueryValidation = createValidator(sponsorQueryChains);
-
-/**
- * Validates `GET` query string for sponsor event search.
- * Sets `res.locals.sponsorEventsQuery`.
- */
-export const validateQueryEvents: RequestHandler = (req, res, next) => {
-  runSponsorQueryValidation(req, res, (err?: unknown) => {
-    if (err !== undefined) {
-      next(err);
-      return;
-    }
-
-    const d = matchedData(req, {
-      locations: ["query"],
-      onlyValidData: true,
-    }) as {
-      target_amount_from?: number;
-      target_amount_to?: number;
-      audience_from?: number;
-      audience_to?: number;
-      location: string;
-      industry: string;
-      tags?: string[];
-      page?: number;
-    };
-
-    res.locals.sponsorEventsQuery = {
-      page: d.page ?? 1,
-      ...(d.target_amount_from != null
-        ? { target_amount_from: d.target_amount_from }
-        : {}),
-      ...(d.target_amount_to != null ? { target_amount_to: d.target_amount_to } : {}),
-      ...(d.audience_from != null ? { audience_from: d.audience_from } : {}),
-      ...(d.audience_to != null ? { audience_to: d.audience_to } : {}),
-      location: d.location,
-      industry: d.industry,
-      tags: d.tags ?? [],
-    };
-
-    next();
-  });
-};
-
-declare global {
-  namespace Express {
-    interface Locals {
-      sponsorEventsQuery?: SponsorEventsQuery;
-    }
-  }
-}
+]);

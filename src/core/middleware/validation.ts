@@ -5,12 +5,13 @@ import status from "http-status";
 export const validateRequest: RequestHandler = (req, res, next) => {
   const result = validationResult(req);
   if (!result.isEmpty()) {
-    const message = result
-      .array()
-      .map((e) => (typeof e.msg === "string" ? e.msg : String(e.msg)));
+    const errors = result.array().map((e) => ({
+      field: "path" in e ? e.path : undefined,
+      message: typeof e.msg === "string" ? e.msg : String(e.msg),
+    }));
     res.status(status.BAD_REQUEST).json({
       status: status.BAD_REQUEST,
-      message,
+      errors,
     });
     return;
   }

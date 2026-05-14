@@ -11,8 +11,6 @@ import path from "path";
 import status from "http-status";
 import { buildSponsorEventWhere } from "../utils/buildSponsorEventWhere";
 
-
-
 export const createEvent = async (req: Request, res: Response) => {
   const event_creator_id = getContextUser()!.id;
 
@@ -116,13 +114,7 @@ export const getMyEvents = async (req: Request, res: Response) => {
 };
 
 export const queryEvents = async (req: Request, res: Response) => {
-  const filters = res.locals.sponsorEventsQuery;
-  if (!filters) {
-    res
-      .status(status.INTERNAL_SERVER_ERROR)
-      .json({ message: "Missing validated query" });
-    return;
-  }
+  const filters = req.query as unknown as SponsorEventsQuery;
 
   const where = buildSponsorEventWhere(filters);
   const skip = (filters.page - 1) * SPONSOR_EVENTS_PAGE_SIZE;
