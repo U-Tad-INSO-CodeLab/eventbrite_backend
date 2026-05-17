@@ -3,8 +3,8 @@ import { authMiddleware } from "@/modules/auth/middleware/auth";
 import { requireSponsor, requireCreator } from "@/modules/auth/middleware/rbac";
 import {
   createProposal,
-  listProposalsByConversation,
-  acceptProposalHandler,
+  proposalConversationHistory, 
+  acceptProposal,              
   declineProposal,
   counterProposal,
 } from "@/modules/proposals/controllers/proposals";
@@ -27,11 +27,11 @@ proposalsRouter.post(
   createProposal,
 );
 
-// GET /api/v1/proposals/conversation/:conversationId - listar propuestas
+// GET /api/v1/proposals/conversation/:conversation-id - 🔄 Kebab-case aplicado aquí
 proposalsRouter.get(
-  "/conversation/:conversationId",
+  "/conversation/:conversation-id",
   validateListProposals,
-  listProposalsByConversation,
+  proposalConversationHistory,
 );
 
 // PATCH /api/v1/proposals/:id/accept - aceptar propuesta (solo creator)
@@ -39,7 +39,7 @@ proposalsRouter.patch(
   "/:id/accept",
   requireCreator,
   validateProposalAction,
-  acceptProposalHandler,
+  acceptProposal,
 );
 
 // PATCH /api/v1/proposals/:id/decline - rechazar propuesta (solo creator)

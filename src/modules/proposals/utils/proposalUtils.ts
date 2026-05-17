@@ -23,15 +23,6 @@ export async function getConversation(id: number) {
   return conv;
 }
 
-export async function validateEventTier(eventTierId: number, eventId: number) {
-  const tier = await prisma.eventTier.findUnique({ where: { id: eventTierId } });
-  if (!tier) throw new ProposalError(status.NOT_FOUND, "Event tier not found");
-  if (tier.event_id !== eventId) {
-    throw new ProposalError(status.BAD_REQUEST, "Event tier does not belong to this event");
-  }
-  return tier;
-}
-
 export function assertSponsor(userId: number, conversationSponsorId: number) {
   if (userId !== conversationSponsorId) {
     throw new ProposalError(status.FORBIDDEN, "Sponsor is not part of this conversation");

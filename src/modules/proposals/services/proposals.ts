@@ -4,11 +4,10 @@ import {
   ProposalError,
   getProposal,
   getConversation,
-  validateEventTier,
   assertSponsor,
   assertCreator,
   assertProposalStatus,
-} from "@/modules/proposals/utils/proposalUtils";
+} from "@/modules/proposals/utils/proposalUtils"; // 🔄 Quitamos 'validateEventTier' de las utilidades
 
 export { ProposalError };
 
@@ -33,9 +32,8 @@ export async function acceptProposal(proposalId: number, creatorId: number) {
   });
 }
 
-export async function validateProposalCreation(conversationId: number, sponsorId: number, eventTierId?: number) {
+export async function verifySponsorInConversation(conversationId: number, sponsorId: number) {
   const conversation = await getConversation(conversationId);
   assertSponsor(sponsorId, conversation.event_sponsor_id);
-  if (eventTierId) await validateEventTier(eventTierId, conversation.event_id);
   return conversation;
 }
