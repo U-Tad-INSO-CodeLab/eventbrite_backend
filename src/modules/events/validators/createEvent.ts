@@ -12,6 +12,17 @@ const DESCRIPTION_MAX = 50_000;
 const LOCATION_MAX = 500;
 const INDUSTRY_MAX = 200;
 const TARGET_AMOUNT_MAX = 99_999_999.99;
+const TIER_NAME_MAX = 200;
+const TIER_BENEFITS_MAX = 10_000;
+const TIER_PRICE_MAX = 99_999_999.99;
+const MAX_TIERS_PER_EVENT = 20;
+
+/** Shape of each tier item after the validator chain sanitizes it. */
+export type CreateEventTierInput = {
+  name: string;
+  price: string;
+  benefits: string;
+};
 
 const TAG_ORDER = new Map<string, number>(
   EVENT_TAG_OPTIONS.map((t, i) => [t, i]),
@@ -83,4 +94,54 @@ export const validateAndSanitizeCreateEvent = createValidator([
     .customSanitizer((value) =>
       value === undefined ? undefined : normalizeTagsField(String(value)),
     ),
+
+  // `tiers` arrives as a JSON-encoded array string (multipart form-data can't carry
+  // nested objects natively). The sanitizer below turns it into a real array so the
+  // wildcard validators on `tiers.*.field` can take it from here.
+  body("tiers")
+    .optional({ values: "falsy" })
+    .customSanitizer((value) => {
+      if (Array.isArray(value)) return value;
+      if (typeof value !== "string") return null;
+      const trimmed = value.trim();
+      if (trimmed === "") return [];
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return null;
+      }
+    })
+    .isArray({ max: MAX_TIERS_PER_EVENT })
+    .withMessage(
+      `tiers must be a JSON array with at most ${MAX_TIERS_PER_EVENT} items`,
+    ),
+
+  body("tiers.*.name")
+    .trim()
+    .notEmpty()
+    .isLength({ max: TIER_NAME_MAX })
+    .withMessage(`tier name must be 1-${TIER_NAME_MAX} characters`),
+
+  body("tiers.*.price")
+    .customSanitizer((v) => (typeof v === "number" ? String(v) : v))
+    .trim()
+    .notEmpty()
+    .matches(/^\d+(\.\d{1,2})?$/)
+    .withMessage("tier price must have at most 2 decimal places")
+    .toFloat()
+    .isFloat({ min: 0, max: TIER_PRICE_MAX })
+    .withMessage(`tier price must be between 0 and ${TIER_PRICE_MAX}`)
+    .customSanitizer((v) => String(v)),
+
+  body("tiers.*.benefits")
+    .customSanitizer((v) => {
+      if (Array.isArray(v)) {
+        return JSON.stringify(
+          v.map((b) => String(b).trim()).filter(Boolean),
+        );
+      }
+      return typeof v === "string" ? v.trim() : "";
+    })
+    .isLength({ max: TIER_BENEFITS_MAX })
+    .withMessage(`tier benefits must be at most ${TIER_BENEFITS_MAX} characters`),
 ]);

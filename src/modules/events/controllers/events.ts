@@ -2,6 +2,7 @@ import { prisma } from "@/core/prisma/client";
 import { requireContextUser } from "@/modules/auth/utils/context";
 import { EVENT_TAG_OPTIONS } from "@/modules/events/constants/eventTags";
 import { EVENT_UPLOAD_SUBDIR } from "@/modules/events/middleware/uploadEventCover";
+import type { CreateEventTierInput } from "@/modules/events/validators/createEvent";
 import {
   SPONSOR_EVENTS_PAGE_SIZE,
   type SponsorEventsQuery,
@@ -23,6 +24,7 @@ export const createEvent = async (req: Request, res: Response) => {
     expected_attendance,
     target_amount,
     tags,
+    tiers,
   } = req.body as {
     title: string;
     description: string;
@@ -32,6 +34,7 @@ export const createEvent = async (req: Request, res: Response) => {
     expected_attendance: number;
     target_amount: string;
     tags?: string;
+    tiers?: CreateEventTierInput[];
   };
 
   const file = req.file;
@@ -46,20 +49,39 @@ export const createEvent = async (req: Request, res: Response) => {
   const tagsValue =
     typeof tags === "string" && tags.trim() !== "" ? tags.trim() : null;
 
-  const event = await prisma.event.create({
-    data: {
-      title,
-      description,
-      cover_image,
-      date: new Date(date),
-      location,
-      industry_field,
-      expected_attendance,
-      target_amount,
-      tags: tagsValue,
-      published: true,
-      event_creator_id,
-    },
+  const tierRows = Array.isArray(tiers) ? tiers : [];
+
+  const event = await prisma.$transaction(async (tx) => {
+    const created = await tx.event.create({
+      data: {
+        title,
+        description,
+        cover_image,
+        date: new Date(date),
+        location,
+        industry_field,
+        expected_attendance,
+        target_amount,
+        tags: tagsValue,
+        published: false,
+        event_creator_id,
+      },
+    });
+    if (tierRows.length > 0) {
+      await tx.eventTier.createMany({
+        data: tierRows.map((tier) => ({
+          name: tier.name,
+          price: tier.price,
+          benefits: tier.benefits ?? "",
+          tier_creator_id: event_creator_id,
+          event_id: created.id,
+        })),
+      });
+    }
+    return tx.event.findUniqueOrThrow({
+      where: { id: created.id },
+      include: { event_tiers: true },
+    });
   });
 
   res.status(status.CREATED).json({ event });
@@ -86,6 +108,7 @@ const updatePublishedForCreator = async (
   const event = await prisma.event.update({
     where: { id },
     data: { published },
+    include: { event_tiers: true },
   });
 
   res.status(status.OK).json({ event });
@@ -103,6 +126,7 @@ export const getMyEvents = async (req: Request, res: Response) => {
   const events = await prisma.event.findMany({
     where: { event_creator_id: requireContextUser().id },
     orderBy: { date: "desc" },
+    include: { event_tiers: true },
   });
 
   res.status(status.OK).json({ events });
@@ -121,6 +145,7 @@ export const queryEvents = async (req: Request, res: Response) => {
       orderBy: { date: "desc" },
       skip,
       take: SPONSOR_EVENTS_PAGE_SIZE,
+      include: { event_tiers: true },
     }),
     prisma.event.groupBy({
       by: ["location"],

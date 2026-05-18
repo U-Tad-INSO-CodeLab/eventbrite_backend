@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
+import httpContext from "express-http-context";
 import { NextFunction, Request, Response } from "express";
 import multer, { MulterError } from "multer";
 import status from "http-status";
@@ -55,6 +56,7 @@ export const uploadEventCover = (
   res: Response,
   next: NextFunction,
 ) => {
+  const alsStore = httpContext.asyncLocalStorage.getStore();
   multerInstance.single("cover_image")(req, res, (err: unknown) => {
     if (err instanceof MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
@@ -70,6 +72,13 @@ export const uploadEventCover = (
       res.status(status.BAD_REQUEST).json({ message: err.message });
       return;
     }
-    next();
+    if (alsStore) {
+      httpContext.asyncLocalStorage.run(
+        alsStore as Map<string, unknown>,
+        () => next(),
+      );
+    } else {
+      next();
+    }
   });
 };
