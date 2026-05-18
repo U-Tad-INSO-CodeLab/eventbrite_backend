@@ -4,6 +4,7 @@ import httpContext from "express-http-context";
 import expressLayouts from "express-ejs-layouts";
 import path from "path";
 import { fileURLToPath } from "url";
+import { env } from "@/core/config/env";
 import { errorHandler } from "@/core/middleware/errorHandler";
 import { sessionStoreMiddleware } from "@/core/config/sessionStore";
 import authRouter from "@/modules/auth/routes/auth";
@@ -17,7 +18,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export function createServer(): Application {
   const app = express();
 
-  app.use(cors());
+  app.use(
+    cors({
+      credentials: true,
+      origin(origin, callback) {
+        if (env.NODE_ENV !== "production") {
+          callback(null, true);
+          return;
+        }
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        if (env.CORS_ORIGINS.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(null, false);
+      },
+    }),
+  );
   app.use(httpContext.middleware);
   app.use(sessionStoreMiddleware());
 

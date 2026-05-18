@@ -9,9 +9,15 @@ const db = {
 const auth = db.password === "" ? db.user : `${db.user}:${db.password}`;
 const DATABASE_URL = `mysql://${auth}@${db.host}:${db.port}/${encodeURIComponent(db.database)}`;
 
+const corsOrigins = (process.env.CORS_ORIGINS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 export const env = {
   PORT: Number(process.env.PORT ?? 3000),
   NODE_ENV: process.env.NODE_ENV ?? "development",
+  CORS_ORIGINS: corsOrigins,
   DATABASE_HOST: db.host,
   DATABASE_PORT: db.port,
   DATABASE_USER: db.user,
