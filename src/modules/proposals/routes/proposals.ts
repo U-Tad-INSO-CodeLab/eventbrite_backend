@@ -34,14 +34,12 @@ proposalsRouter.get(
 
 proposalsRouter.patch(
   "/:id/accept",
-  requireCreator,
   validateProposalAction,
   acceptProposalHandler,
 );
 
 proposalsRouter.patch(
   "/:id/decline",
-  requireCreator,
   validateProposalAction,
   declineProposal,
 );

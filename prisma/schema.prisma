@@ -22,6 +22,7 @@ enum UserType {
 
 enum ProposalStatus {
     NEGOTIATING
+    COUNTER_NEGOTIATING
     COUNTER_OFFERED
     ACCEPTED
     DECLINED
@@ -124,6 +125,7 @@ model Proposal {
     tier_benefits String
     is_event_tier Boolean
     status        ProposalStatus @default(NEGOTIATING)
+    created_at    DateTime       @default(now())
 
     //Source event tier (nullable, only if is_event_tier = true)
     event_tier_id Int?

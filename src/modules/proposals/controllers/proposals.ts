@@ -4,6 +4,12 @@ import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 
+/** A proposal is live (awaiting either party's decision) in these two states. */
+const OPEN_STATUSES = [
+  ProposalStatus.NEGOTIATING,
+  ProposalStatus.COUNTER_NEGOTIATING,
+] as const;
+
 export const createProposal = async (req: Request, res: Response) => {
   const user = requireContextUser();
 
@@ -68,7 +74,7 @@ export const listProposalsByConversation = async (
         select: { id: true, username: true, name: true, surname: true },
       },
     },
-    orderBy: { id: "desc" },
+    orderBy: { created_at: "desc" },
   });
 
   res.json({ proposals });
@@ -86,26 +92,40 @@ export const acceptProposalHandler = async (req: Request, res: Response) => {
     return res.status(status.NOT_FOUND).json({ message: "Proposal not found" });
   }
 
-  if (user.id !== proposal.event_creator_id) {
+  // NEGOTIATING is awaiting the creator; COUNTER_NEGOTIATING is awaiting the
+  // sponsor. Anything else can't be acted on.
+  if (
+    proposal.status === ProposalStatus.NEGOTIATING &&
+    user.id !== proposal.event_creator_id
+  ) {
     return res
       .status(status.FORBIDDEN)
-      .json({ message: "Only the event creator can perform this action" });
+      .json({ message: "Only the event creator can act on this proposal" });
   }
-
+  if (
+    proposal.status === ProposalStatus.COUNTER_NEGOTIATING &&
+    user.id !== proposal.sponsor_id
+  ) {
+    return res
+      .status(status.FORBIDDEN)
+      .json({ message: "Only the sponsor can act on this proposal" });
+  }
   if (
     proposal.status !== ProposalStatus.NEGOTIATING &&
-    proposal.status !== ProposalStatus.COUNTER_OFFERED
+    proposal.status !== ProposalStatus.COUNTER_NEGOTIATING
   ) {
     return res.status(status.BAD_REQUEST).json({
       message: `Cannot perform action on proposal with status ${proposal.status}`,
     });
   }
 
+  // Decline every other open proposal in this sponsor↔creator conversation so
+  // accepting one settles the whole negotiation cleanly.
   await prisma.proposal.updateMany({
     where: {
       sponsor_id: proposal.sponsor_id,
       event_creator_id: proposal.event_creator_id,
-      status: ProposalStatus.NEGOTIATING,
+      status: { in: [...OPEN_STATUSES] },
       id: { not: proposalId },
     },
     data: { status: ProposalStatus.DECLINED },
@@ -130,14 +150,25 @@ export const declineProposal = async (req: Request, res: Response) => {
     return res.status(status.NOT_FOUND).json({ message: "Proposal not found" });
   }
 
-  if (user.id !== proposal.event_creator_id) {
+  if (
+    proposal.status === ProposalStatus.NEGOTIATING &&
+    user.id !== proposal.event_creator_id
+  ) {
     return res
       .status(status.FORBIDDEN)
-      .json({ message: "Only the event creator can perform this action" });
+      .json({ message: "Only the event creator can act on this proposal" });
+  }
+  if (
+    proposal.status === ProposalStatus.COUNTER_NEGOTIATING &&
+    user.id !== proposal.sponsor_id
+  ) {
+    return res
+      .status(status.FORBIDDEN)
+      .json({ message: "Only the sponsor can act on this proposal" });
   }
   if (
     proposal.status !== ProposalStatus.NEGOTIATING &&
-    proposal.status !== ProposalStatus.COUNTER_OFFERED
+    proposal.status !== ProposalStatus.COUNTER_NEGOTIATING
   ) {
     return res.status(status.BAD_REQUEST).json({
       message: `Cannot decline proposal with status ${proposal.status}`,
@@ -168,6 +199,8 @@ export const counterProposal = async (req: Request, res: Response) => {
       .json({ message: "Only the event creator can perform this action" });
   }
 
+  // Counters only make sense against a live sponsor offer. Once it's been
+  // countered/accepted/declined, the creator can't counter again.
   if (proposal.status !== ProposalStatus.NEGOTIATING) {
     return res.status(status.BAD_REQUEST).json({
       message: `Cannot counter proposal with status ${proposal.status}`,
@@ -179,6 +212,9 @@ export const counterProposal = async (req: Request, res: Response) => {
     data: { status: ProposalStatus.COUNTER_OFFERED },
   });
 
+  // No ID swap: the counter belongs to the same sponsor↔creator pair as the
+  // parent. Direction is conveyed by `COUNTER_NEGOTIATING` (ball is now in the
+  // sponsor's court).
   const counter = await prisma.proposal.create({
     data: {
       tier_name: req.body.tierName || `Counter-offer: ${proposal.tier_name}`,
@@ -186,9 +222,9 @@ export const counterProposal = async (req: Request, res: Response) => {
       tier_benefits: proposal.tier_benefits,
       is_event_tier: false,
       event_tier_id: null,
-      sponsor_id: proposal.event_creator_id,
-      event_creator_id: proposal.sponsor_id,
-      status: ProposalStatus.NEGOTIATING,
+      sponsor_id: proposal.sponsor_id,
+      event_creator_id: proposal.event_creator_id,
+      status: ProposalStatus.COUNTER_NEGOTIATING,
     },
   });
 
