@@ -8,3 +8,11 @@ export const setContextUser = (user: JwtUserPayload) =>
 
 export const getContextUser = (): JwtUserPayload | undefined =>
   httpContext.get(USER_KEY);
+
+export const requireContextUser = (): JwtUserPayload => {
+  const user = getContextUser();
+  if (user === undefined) {
+    throw new Error("Missing authenticated user in request context");
+  }
+  return user;
+};

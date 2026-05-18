@@ -1,11 +1,11 @@
 import { prisma } from "@/core/prisma/client";
 import { ablyRest } from "@/modules/chat/services/ably";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 
 export const getMessages = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const conversationId = Number(req.params.id);
 
   const conversation = await prisma.conversation.findFirst({
@@ -32,7 +32,7 @@ export const getMessages = async (req: Request, res: Response) => {
 };
 
 export const sendMessage = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const conversationId = Number(req.params.id);
   const { message } = req.body;
 

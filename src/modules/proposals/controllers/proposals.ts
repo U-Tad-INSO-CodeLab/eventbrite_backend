@@ -1,11 +1,11 @@
 import { prisma } from "@/core/prisma/client";
 import { ProposalStatus } from "@/core/prisma/generated/client";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 
 export const createProposal = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
 
   const conv = await prisma.conversation.findUnique({
     where: { id: req.body.conversationId },
@@ -37,7 +37,7 @@ export const listProposalsByConversation = async (
   req: Request,
   res: Response,
 ) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
 
   const conv = await prisma.conversation.findUnique({
     where: { id: parseInt(req.params.id, 10) },
@@ -75,7 +75,7 @@ export const listProposalsByConversation = async (
 };
 
 export const acceptProposalHandler = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const proposalId = parseInt(req.params.id, 10);
 
   const proposal = await prisma.proposal.findUnique({
@@ -120,7 +120,7 @@ export const acceptProposalHandler = async (req: Request, res: Response) => {
 };
 
 export const declineProposal = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
 
   const proposal = await prisma.proposal.findUnique({
     where: { id: parseInt(req.params.id) },
@@ -152,7 +152,7 @@ export const declineProposal = async (req: Request, res: Response) => {
 };
 
 export const counterProposal = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
 
   const proposal = await prisma.proposal.findUnique({
     where: { id: parseInt(req.params.id) },

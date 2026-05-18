@@ -1,10 +1,10 @@
 import { prisma } from "@/core/prisma/client";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 
 export const listDefaultTiers = async (_req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const default_tiers = await prisma.defaultTier.findMany({
     where: { event_creator_id: user.id },
     orderBy: { id: "asc" },
@@ -13,7 +13,7 @@ export const listDefaultTiers = async (_req: Request, res: Response) => {
 };
 
 export const createDefaultTier = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const { name, price, benefits } = req.body as {
     name: string;
     price: string;
@@ -33,7 +33,7 @@ export const createDefaultTier = async (req: Request, res: Response) => {
 };
 
 export const updateDefaultTier = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const id = Number(req.params.id);
   const { name, price, benefits } = req.body as {
     name: string;
@@ -59,7 +59,7 @@ export const updateDefaultTier = async (req: Request, res: Response) => {
 };
 
 export const deleteDefaultTier = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const id = Number(req.params.id);
 
   const existing = await prisma.defaultTier.findFirst({

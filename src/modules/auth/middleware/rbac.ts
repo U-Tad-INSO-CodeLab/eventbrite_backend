@@ -1,4 +1,4 @@
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { UserType } from "@/core/prisma/generated/client";
 import { RequestHandler } from "express";
 import status from "http-status";
@@ -15,8 +15,10 @@ export function requireRoles(
   const allowedSet = new Set(allowed);
 
   return (_req, res, next) => {
-    const user = getContextUser();
-    if (!user) {
+    let user;
+    try {
+      user = requireContextUser();
+    } catch {
       res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
       return;
     }

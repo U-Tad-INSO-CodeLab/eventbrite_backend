@@ -1,5 +1,5 @@
 import { prisma } from "@/core/prisma/client";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { EVENT_TAG_OPTIONS } from "@/modules/events/constants/eventTags";
 import { EVENT_UPLOAD_SUBDIR } from "@/modules/events/middleware/uploadEventCover";
 import {
@@ -12,7 +12,7 @@ import status from "http-status";
 import { buildSponsorEventWhere } from "../utils/buildSponsorEventWhere";
 
 export const createEvent = async (req: Request, res: Response) => {
-  const event_creator_id = getContextUser()!.id;
+  const { id: event_creator_id } = requireContextUser();
 
   const {
     title,
@@ -70,12 +70,7 @@ const updatePublishedForCreator = async (
   res: Response,
   published: boolean,
 ) => {
-  const contextUser = getContextUser();
-
-  if (!contextUser) {
-    res.status(status.UNAUTHORIZED).json({ message: "Unauthorized" });
-    return;
-  }
+  const contextUser = requireContextUser();
 
   const id = Number(req.params.id);
 
@@ -106,7 +101,7 @@ export const unpublishEvent = async (req: Request, res: Response) => {
 
 export const getMyEvents = async (req: Request, res: Response) => {
   const events = await prisma.event.findMany({
-    where: { event_creator_id: getContextUser()!.id },
+    where: { event_creator_id: requireContextUser().id },
     orderBy: { date: "desc" },
   });
 

@@ -1,11 +1,11 @@
 import { prisma } from "@/core/prisma/client";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 import { conversationQueryIncludeFields } from "@/modules/chat/utils/conversationInclude";
 
 export const getConversations = async (req: Request, res: Response) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
 
   const conversations = await prisma.conversation.findMany({
     where: {
@@ -32,7 +32,7 @@ export const initializeConversationForEvent = async (
   req: Request,
   res: Response,
 ) => {
-  const user = getContextUser()!;
+  const user = requireContextUser();
   const { event_id } = req.body;
 
   if (user.user_type !== "sponsor") {

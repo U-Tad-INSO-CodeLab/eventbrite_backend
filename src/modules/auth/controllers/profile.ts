@@ -1,13 +1,13 @@
 import { prisma } from "@/core/prisma/client";
-import { getContextUser } from "@/modules/auth/utils/context";
+import { requireContextUser } from "@/modules/auth/utils/context";
 import { Request, Response } from "express";
 import status from "http-status";
 
 export const getProfile = async (_req: Request, res: Response) => {
-  const contextUser = getContextUser();
+  const contextUser = requireContextUser();
 
   const user = await prisma.user.findUnique({
-    where: { id: contextUser?.id },
+    where: { id: contextUser.id },
     omit: { password: true },
   });
 
