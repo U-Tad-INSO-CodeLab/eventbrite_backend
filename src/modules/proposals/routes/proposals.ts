@@ -3,8 +3,8 @@ import { authMiddleware } from "@/modules/auth/middleware/auth";
 import { requireSponsor, requireCreator } from "@/modules/auth/middleware/rbac";
 import {
   createProposal,
-  proposalConversationHistory, 
-  acceptProposal,              
+  listProposalsByConversation,
+  acceptProposalHandler,
   declineProposal,
   counterProposal,
 } from "@/modules/proposals/controllers/proposals";
@@ -19,7 +19,6 @@ const proposalsRouter = express.Router();
 
 proposalsRouter.use(authMiddleware);
 
-// POST /api/v1/proposals - crear propuesta (solo sponsor)
 proposalsRouter.post(
   "/",
   requireSponsor,
@@ -27,22 +26,19 @@ proposalsRouter.post(
   createProposal,
 );
 
-// GET /api/v1/proposals/conversation/:conversation-id - 🔄 Kebab-case aplicado aquí
 proposalsRouter.get(
-  "/conversation/:conversation-id",
+  "/conversation/:id",
   validateListProposals,
-  proposalConversationHistory,
+  listProposalsByConversation,
 );
 
-// PATCH /api/v1/proposals/:id/accept - aceptar propuesta (solo creator)
 proposalsRouter.patch(
   "/:id/accept",
   requireCreator,
   validateProposalAction,
-  acceptProposal,
+  acceptProposalHandler,
 );
 
-// PATCH /api/v1/proposals/:id/decline - rechazar propuesta (solo creator)
 proposalsRouter.patch(
   "/:id/decline",
   requireCreator,
@@ -50,7 +46,6 @@ proposalsRouter.patch(
   declineProposal,
 );
 
-// POST /api/v1/proposals/:id/counter - hacer contraoferta (solo creator)
 proposalsRouter.post(
   "/:id/counter",
   requireCreator,
